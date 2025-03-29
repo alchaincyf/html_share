@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -16,12 +16,8 @@ export default function HtmlEditor({ initialHtml = '', onSave, isEditing = false
   const [previewKey, setPreviewKey] = useState(Date.now());
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // 当HTML内容改变时更新预览
-  useEffect(() => {
-    updatePreview();
-  }, [html, previewKey]);
-
-  const updatePreview = () => {
+  // 使用useCallback包装updatePreview函数
+  const updatePreview = useCallback(() => {
     if (iframeRef.current) {
       const iframe = iframeRef.current;
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
@@ -32,7 +28,12 @@ export default function HtmlEditor({ initialHtml = '', onSave, isEditing = false
         iframeDoc.close();
       }
     }
-  };
+  }, [html]);
+
+  // 当HTML内容改变时更新预览
+  useEffect(() => {
+    updatePreview();
+  }, [updatePreview, previewKey]);
 
   const handleSave = () => {
     if (onSave) {
