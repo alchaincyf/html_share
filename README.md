@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 元宝伴侣 - HTML分享预览工具
 
-## Getting Started
+元宝伴侣是一个轻量级的HTML分享预览工具，允许用户轻松粘贴HTML代码进行预览，并将预览的网站分享给朋友。用户可以创建、编辑和管理自己的HTML项目，生成独立的预览链接，完全像是一个独立的网站，可以交互操作。
 
-First, run the development server:
+## 功能特点
+
+- 实时HTML预览
+- 代码高亮显示
+- 项目保存和管理
+- 一键生成分享链接
+- 独立预览页面，支持JavaScript交互
+
+## 技术栈
+
+- 前端: Next.js, React, TypeScript, TailwindCSS
+- 后端: Supabase (PostgreSQL数据库)
+- 部署: Vercel
+
+## 本地开发
+
+### 前提条件
+
+- Node.js 18+
+- npm 或 yarn
+- Supabase 账号
+
+### 安装步骤
+
+1. 克隆仓库
+
+```bash
+git clone https://github.com/yourusername/html-share.git
+cd html-share
+```
+
+2. 安装依赖
+
+```bash
+npm install
+```
+
+3. 配置环境变量
+
+创建一个`.env.local`文件，并填写以下内容：
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+4. 在Supabase中设置数据库
+
+登录Supabase控制台，创建一个新项目，然后在SQL编辑器中执行`supabase/setup.sql`文件中的SQL语句。
+
+5. 启动开发服务器
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. 打开浏览器并访问 http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 部署
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 部署到Vercel
 
-## Learn More
+1. 在Vercel上创建一个新项目
+2. 导入GitHub仓库
+3. 设置环境变量（与`.env.local`相同）
+4. 部署
 
-To learn more about Next.js, take a look at the following resources:
+## 贡献
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+欢迎提交Pull Request和Issue！
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 许可证
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
