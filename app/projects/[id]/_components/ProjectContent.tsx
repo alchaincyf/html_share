@@ -15,10 +15,13 @@ export default function ProjectContent({ id }: { id: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [debugError, setDebugError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProject = async () => {
+      setDebugError(null);
       try {
+        console.log('正在获取项目数据，ID:', id);
         const { data, error } = await supabase
           .from('html_projects')
           .select('*')
@@ -26,12 +29,23 @@ export default function ProjectContent({ id }: { id: string }) {
           .single();
 
         if (error) {
-          throw error;
+          const errorMsg = `获取项目数据失败: ${error.message || JSON.stringify(error)}`;
+          console.error(errorMsg);
+          setDebugError(errorMsg);
+          throw new Error(errorMsg);
         }
 
+        console.log('成功获取项目数据:', data ? '数据正常' : '没有数据');
         setProject(data);
       } catch (error) {
-        console.error('获取项目失败:', error);
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : typeof error === 'object' && error !== null
+            ? JSON.stringify(error)
+            : '未知错误';
+        
+        console.error('获取项目失败:', errorMessage);
+        setDebugError(errorMessage);
         toast.error('获取项目失败');
       } finally {
         setIsLoading(false);
@@ -55,8 +69,10 @@ export default function ProjectContent({ id }: { id: string }) {
     }
 
     setIsSubmitting(true);
+    setDebugError(null);
 
     try {
+      console.log('准备更新项目:', project.id);
       const { error } = await supabase
         .from('html_projects')
         .update({
@@ -67,9 +83,13 @@ export default function ProjectContent({ id }: { id: string }) {
         .eq('id', project.id);
 
       if (error) {
-        throw error;
+        const errorMsg = `更新项目失败: ${error.message || JSON.stringify(error)}`;
+        console.error(errorMsg);
+        setDebugError(errorMsg);
+        throw new Error(errorMsg);
       }
 
+      console.log('项目更新成功');
       setProject({
         ...project,
         title,
@@ -80,7 +100,14 @@ export default function ProjectContent({ id }: { id: string }) {
       setIsEditing(false);
       toast.success('项目更新成功');
     } catch (error) {
-      console.error('更新项目失败:', error);
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : typeof error === 'object' && error !== null
+          ? JSON.stringify(error)
+          : '未知错误';
+      
+      console.error('更新项目失败:', errorMessage);
+      setDebugError(errorMessage);
       toast.error('更新项目失败，请稍后重试');
     } finally {
       setIsSubmitting(false);
@@ -92,20 +119,33 @@ export default function ProjectContent({ id }: { id: string }) {
       return;
     }
 
+    setDebugError(null);
     try {
+      console.log('准备删除项目:', id);
       const { error } = await supabase
         .from('html_projects')
         .delete()
         .eq('id', id);
 
       if (error) {
-        throw error;
+        const errorMsg = `删除项目失败: ${error.message || JSON.stringify(error)}`;
+        console.error(errorMsg);
+        setDebugError(errorMsg);
+        throw new Error(errorMsg);
       }
 
+      console.log('项目删除成功');
       toast.success('项目已删除');
       router.push('/projects');
     } catch (error) {
-      console.error('删除项目失败:', error);
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : typeof error === 'object' && error !== null
+          ? JSON.stringify(error)
+          : '未知错误';
+      
+      console.error('删除项目失败:', errorMessage);
+      setDebugError(errorMessage);
       toast.error('删除项目失败');
     }
   };
@@ -114,6 +154,37 @@ export default function ProjectContent({ id }: { id: string }) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-gray-500">加载中...</p>
+      </div>
+    );
+  }
+
+  // 显示调试错误信息
+  if (debugError) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+          <div className="flex">
+            <div className="ml-3">
+              <p className="text-sm text-red-700 font-medium">
+                调试信息：
+              </p>
+              <pre className="mt-1 text-xs text-red-700 whitespace-pre-wrap break-words">
+                {debugError}
+              </pre>
+              <p className="mt-2 text-sm text-red-700">
+                请检查Supabase连接、项目设置和环境变量是否正确配置。
+              </p>
+              <div className="mt-3">
+                <Link
+                  href="/projects"
+                  className="text-red-700 font-medium hover:text-red-600"
+                >
+                  返回我的项目
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

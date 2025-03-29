@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 export default function CreatePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [debugError, setDebugError] = useState<string | null>(null);
 
   const handleSave = async (html: string, title: string) => {
     if (!html.trim()) {
@@ -23,11 +24,21 @@ export default function CreatePage() {
     }
 
     setIsSubmitting(true);
+    setDebugError(null);
 
     try {
+      // 先检查Supabase连接
+      const testConnection = await supabase.from('html_projects').select('count');
+      
+      if (testConnection.error) {
+        throw new Error(`Supabase连接测试失败: ${JSON.stringify(testConnection.error)}`);
+      }
+      
+      console.log('Supabase连接成功，准备创建项目...');
+      
       const projectId = uuidv4();
       
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('html_projects')
         .insert({
           id: projectId,
@@ -37,13 +48,24 @@ export default function CreatePage() {
         });
 
       if (error) {
-        throw error;
+        const errorMsg = `Supabase插入错误: ${error.message || JSON.stringify(error)}`;
+        console.error(errorMsg);
+        setDebugError(errorMsg);
+        throw new Error(errorMsg);
       }
 
+      console.log('项目创建成功:', data);
       toast.success('项目创建成功');
       router.push(`/projects/${projectId}`);
     } catch (error) {
-      console.error('保存项目失败:', error);
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : typeof error === 'object' && error !== null
+          ? JSON.stringify(error)
+          : '未知错误';
+      
+      console.error('保存项目失败:', errorMessage);
+      setDebugError(errorMessage);
       toast.error('保存项目失败，请稍后重试');
     } finally {
       setIsSubmitting(false);
@@ -58,6 +80,24 @@ export default function CreatePage() {
           粘贴您的HTML代码，预览效果并保存分享
         </p>
       </div>
+
+      {debugError && (
+        <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <p className="text-sm text-red-700 font-medium">
+                调试信息：
+              </p>
+              <pre className="mt-1 text-xs text-red-700 whitespace-pre-wrap break-words">
+                {debugError}
+              </pre>
+              <p className="mt-2 text-sm text-red-700">
+                请检查Supabase连接、项目设置和环境变量是否正确配置。
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg p-4 sm:p-6">
         <HtmlEditor onSave={handleSave} />

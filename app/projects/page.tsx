@@ -10,34 +10,45 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<HtmlProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<
+    'checking' | 'connected' | 'failed'
+  >('checking');
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         console.log('正在连接 Supabase...');
         // 先测试连接
-        const { error: connectionError } = await supabase.from('html_projects').select('count');
+        const { error: connectionError } = await supabase
+          .from('html_projects')
+          .select('count');
         
         if (connectionError) {
-          console.error('Supabase 连接测试失败:', connectionError);
-          setErrorDetails(`连接错误: ${connectionError.message || JSON.stringify(connectionError)}`);
-          throw connectionError;
+          const errorMsg = `Supabase 连接错误: ${connectionError.message || JSON.stringify(connectionError)}`;
+          console.error(errorMsg);
+          setErrorDetails(errorMsg);
+          setConnectionStatus('failed');
+          throw new Error(errorMsg);
         }
         
         console.log('连接成功，正在获取项目列表...');
+        setConnectionStatus('connected');
+        
         const { data, error } = await supabase
           .from('html_projects')
           .select('*')
           .order('updated_at', { ascending: false });
 
         if (error) {
-          console.error('获取项目数据失败:', error);
-          setErrorDetails(`数据错误: ${error.message || JSON.stringify(error)}`);
-          throw error;
+          const errorMsg = `获取项目数据失败: ${error.message || JSON.stringify(error)}`;
+          console.error(errorMsg);
+          setErrorDetails(errorMsg);
+          throw new Error(errorMsg);
         }
 
         console.log(`成功获取 ${data?.length || 0} 个项目`);
         setProjects(data || []);
+        setErrorDetails(null);
       } catch (error: unknown) {
         const errorMessage = error instanceof Error 
           ? error.message 
@@ -88,6 +99,15 @@ export default function ProjectsPage() {
         </div>
       </div>
 
+      {connectionStatus === 'connected' && (
+        <div className="mb-4 bg-green-50 border-l-4 border-green-400 p-3 flex items-center">
+          <svg className="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+          </svg>
+          <p className="text-sm text-green-700">数据库连接正常</p>
+        </div>
+      )}
+
       {errorDetails && (
         <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
           <div className="flex">
@@ -103,6 +123,14 @@ export default function ProjectsPage() {
               <p className="mt-2 text-sm text-red-700">
                 请确保已经在 Supabase 中创建了 html_projects 表，并在 .env.local 文件中设置了正确的 URL 和 API Key。
               </p>
+              <div className="mt-3">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="text-sm font-medium text-red-700 hover:text-red-600"
+                >
+                  重新加载页面
+                </button>
+              </div>
             </div>
           </div>
         </div>
