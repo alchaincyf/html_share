@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb, formatDoc } from '@/lib/firebase-admin';
-import { collection, query, where, orderBy, getDocs } from 'firebase-admin/firestore';
 
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
@@ -9,15 +8,11 @@ const COLLECTION_NAME = 'html_projects';
 export async function GET(request: NextRequest) {
   try {
     // 创建查询 - 查找所有is_public为true的项目并按更新时间排序
-    const projectsRef = collection(adminDb, COLLECTION_NAME);
-    const q = query(
-      projectsRef,
-      where('is_public', '==', true),
-      orderBy('updated_at', 'desc')
-    );
-
-    // 执行查询
-    const querySnapshot = await getDocs(q);
+    const projectsRef = adminDb.collection(COLLECTION_NAME);
+    const querySnapshot = await projectsRef
+      .where('is_public', '==', true)
+      .orderBy('updated_at', 'desc')
+      .get();
     
     // 格式化结果
     const projects = querySnapshot.docs.map(doc => formatDoc(doc));

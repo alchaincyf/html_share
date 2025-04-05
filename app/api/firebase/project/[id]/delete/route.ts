@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
-import { doc, deleteDoc, getDoc } from 'firebase-admin/firestore';
 
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
@@ -21,11 +20,11 @@ export async function DELETE(
     }
 
     // 获取文档引用
-    const docRef = doc(adminDb, COLLECTION_NAME, projectId);
+    const docRef = adminDb.collection(COLLECTION_NAME).doc(projectId);
 
     // 检查文档是否存在
-    const docSnapshot = await getDoc(docRef);
-    if (!docSnapshot.exists()) {
+    const docSnapshot = await docRef.get();
+    if (!docSnapshot.exists) {
       return NextResponse.json(
         { error: '项目不存在' },
         { status: 404 }
@@ -33,7 +32,7 @@ export async function DELETE(
     }
 
     // 删除文档
-    await deleteDoc(docRef);
+    await docRef.delete();
 
     // 返回结果
     return NextResponse.json({ 

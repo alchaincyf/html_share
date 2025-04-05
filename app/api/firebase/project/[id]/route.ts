@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb, formatDoc } from '@/lib/firebase-admin';
-import { doc, getDoc } from 'firebase-admin/firestore';
 
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
@@ -21,13 +20,13 @@ export async function GET(
     }
 
     // 获取文档引用
-    const docRef = doc(adminDb, COLLECTION_NAME, projectId);
+    const docRef = adminDb.collection(COLLECTION_NAME).doc(projectId);
     
     // 获取文档
-    const docSnapshot = await getDoc(docRef);
+    const docSnapshot = await docRef.get();
     
     // 检查文档是否存在
-    if (!docSnapshot.exists()) {
+    if (!docSnapshot.exists) {
       return NextResponse.json(
         { error: '项目不存在' },
         { status: 404 }

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb, formatDoc } from '@/lib/firebase-admin';
-import { collection, addDoc, getDoc } from 'firebase-admin/firestore';
 
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
@@ -10,45 +9,38 @@ export async function POST(request: NextRequest) {
   try {
     // 从请求体获取数据
     const body = await request.json();
-    const { title, html_content, is_public = true, user_id = null } = body;
+    const { title, html_content, is_public, user_id } = body;
 
-    // 验证必需的字段
-    if (!title) {
+    // 检查必要字段
+    if (!title || !html_content) {
       return NextResponse.json(
-        { error: '缺少项目标题' },
+        { error: '标题和HTML内容是必填项' },
         { status: 400 }
       );
     }
 
-    if (!html_content) {
-      return NextResponse.json(
-        { error: '缺少HTML内容' },
-        { status: 400 }
-      );
-    }
-
-    // 当前时间
+    // 构建要保存的数据
     const now = new Date();
-
-    // 创建文档
-    const docRef = await addDoc(collection(adminDb, COLLECTION_NAME), {
+    const projectData = {
       title,
       html_content,
-      is_public: !!is_public,
-      user_id,
       created_at: now,
-      updated_at: now
-    });
+      updated_at: now,
+      is_public: !!is_public, // 确保布尔值
+      ...(user_id && { user_id }) // 只有当user_id存在时才添加
+    };
 
-    // 获取新创建的文档以返回完整数据
-    const snapshot = await getDoc(docRef);
-    const project = formatDoc(snapshot);
+    // 添加文档
+    const docRef = await adminDb.collection(COLLECTION_NAME).add(projectData);
+    
+    // 获取新创建的文档
+    const docSnapshot = await docRef.get();
+    const project = formatDoc(docSnapshot);
 
     // 返回结果
     return NextResponse.json({ 
       success: true,
-      project,
-      id: docRef.id
+      project
     }, { status: 201 });
   } catch (error: any) {
     console.error('创建项目失败:', error);
