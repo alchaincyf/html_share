@@ -21,12 +21,18 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    // 确保代码只在客户端执行
+    if (typeof window === 'undefined') return;
+    
     const handleScroll = () => {
       const isScrolled = window.scrollY > 10;
       if (isScrolled !== scrolled) {
         setScrolled(isScrolled);
       }
     };
+
+    // 执行初始检查
+    handleScroll();
 
     window.addEventListener('scroll', handleScroll);
     return () => {
