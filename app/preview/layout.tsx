@@ -8,5 +8,12 @@ export default function PreviewLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  // 这个布局将覆盖默认的应用布局，移除导航栏和其他UI元素
+  return (
+    <html lang="zh-CN">
+      <body>
+        {children}
+      </body>
+    </html>
+  );
 } 
