@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { getProject } from '@/lib/firebase-utils';
-import type { HtmlProject } from '@/lib/firebase';
 
 export default function RawHtmlContent({ id }: { id: string }) {
   const [html, setHtml] = useState<string>('');
