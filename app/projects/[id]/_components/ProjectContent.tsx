@@ -233,7 +233,7 @@ export default function ProjectContent({ id }: { id: string }) {
                 srcDoc={project.html_content}
                 title={project.title}
                 className="w-full h-full border-0"
-                sandbox="allow-same-origin allow-scripts allow-forms"
+                sandbox="allow-scripts allow-forms"
               />
             </div>
           </div>

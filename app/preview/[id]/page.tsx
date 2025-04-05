@@ -36,26 +36,6 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
     fetchProject();
   }, [params.id]);
 
-  useEffect(() => {
-    if (htmlContent) {
-      try {
-        // 将HTML内容设置为整个文档内容
-        document.open();
-        document.write(htmlContent);
-        document.close();
-        
-        // 恢复滚动行为
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-      } catch (error) {
-        console.error('渲染HTML内容时出错:', error);
-        setError('渲染HTML内容时出错');
-      }
-    }
-  }, [htmlContent]);
-
-  // 加载状态和错误状态需要显示，但一旦HTML内容加载完成，
-  // document.write将替换整个页面，所以这里的返回值不再重要
   if (isLoading) {
     return (
       <div style={{ 
@@ -85,6 +65,15 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
     );
   }
 
-  // 返回一个空div，因为document.write已经替换了整个页面内容
-  return <div></div>;
+  // 使用iframe替代document.write，更安全
+  return (
+    <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
+      <iframe
+        srcDoc={htmlContent || ''}
+        title="HTML预览"
+        style={{ width: '100%', height: '100%', border: 'none' }}
+        sandbox="allow-scripts allow-forms"
+      />
+    </div>
+  );
 } 
