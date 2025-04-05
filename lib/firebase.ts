@@ -26,9 +26,8 @@ export const auth = getAuth(app);
 export const storage = getStorage(app);
 
 // Initialize Analytics only on client side
-let analytics = null;
 if (typeof window !== 'undefined') {
-  analytics = getAnalytics(app);
+  getAnalytics(app);
 }
 
 // HTML 项目类型定义

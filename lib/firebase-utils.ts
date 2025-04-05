@@ -10,7 +10,9 @@ import {
   deleteDoc, 
   serverTimestamp, 
   Timestamp,
-  where
+  where,
+  DocumentSnapshot,
+  QueryDocumentSnapshot
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { HtmlProject } from './firebase';
@@ -19,20 +21,20 @@ import { HtmlProject } from './firebase';
 const COLLECTION_NAME = 'html_projects';
 
 // 格式化Firestore文档为HtmlProject类型
-const formatDoc = (doc: any): HtmlProject => {
-  const data = doc.data();
+const formatDoc = (doc: DocumentSnapshot | QueryDocumentSnapshot<unknown>): HtmlProject => {
+  const data = doc.data() || {};
   // 将Firestore的Timestamp转换为ISO字符串
   const created_at = data.created_at instanceof Timestamp 
     ? data.created_at.toDate().toISOString() 
-    : data.created_at;
+    : data.created_at || new Date().toISOString();
   const updated_at = data.updated_at instanceof Timestamp 
     ? data.updated_at.toDate().toISOString() 
-    : data.updated_at;
+    : data.updated_at || new Date().toISOString();
 
   return {
     id: doc.id,
-    title: data.title,
-    html_content: data.html_content,
+    title: data.title || '',
+    html_content: data.html_content || '',
     created_at,
     updated_at,
     user_id: data.user_id || null,
