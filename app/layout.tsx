@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "元宝伴侣 - HTML分享预览工具",
-  description: "轻松粘贴HTML代码实现预览，并分享给朋友",
+  title: "AIPage.top - 轻松创建分享HTML页面",
+  description: "一键创建、预览和分享您的HTML页面，无需部署，即刻呈现",
 };
 
 export default function RootLayout({
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-gray-50 to-white min-h-screen`}
       >
         <Header />
         <main className="container mx-auto px-4 py-8">

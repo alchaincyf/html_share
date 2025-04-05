@@ -1,76 +1,107 @@
 import Link from 'next/link';
+import { ArrowUpRightIcon, CodeBracketIcon, ShareIcon, FolderIcon } from '@heroicons/react/24/outline';
 
 export default function Home() {
   return (
-    <div className="relative isolate overflow-hidden bg-white">
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+    <div className="relative isolate overflow-hidden">
+      {/* 装饰背景 */}
+      <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+        <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }}></div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-6 pt-24 pb-12 sm:pt-32 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
+          <div className="inline-block rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/20 mb-6">
+            全新体验
+          </div>
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            元宝伴侣 - HTML分享预览工具
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">AIPage.top</span>
+            <br />
+            <span className="text-2xl sm:text-4xl mt-2 block">HTML创作与即时分享平台</span>
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-600">
-            轻松粘贴HTML代码实现预览，并分享给朋友，完全像是一个独立的网站，可以交互操作。
+            轻松创建、预览和分享您的HTML页面，无需部署，所见即所得，完全像是一个独立的网站。
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link
               href="/create"
-              className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="rounded-full group relative overflow-hidden bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:shadow-xl transition-all duration-300 hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              创建新项目
+              <span className="relative z-10">开始创建</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
             </Link>
-            <Link href="/projects" className="text-sm font-semibold leading-6 text-gray-900">
-              查看我的项目 <span aria-hidden="true">→</span>
+            <Link 
+              href="/projects" 
+              className="group text-sm font-semibold leading-6 text-gray-900 flex items-center"
+            >
+              查看项目库 
+              <ArrowUpRightIcon className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
             </Link>
           </div>
         </div>
       </div>
       
-      <div className="bg-gray-50 py-24 sm:py-32">
+      {/* 特点展示部分 */}
+      <div className="bg-gradient-to-b from-white to-indigo-50 py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
             <h2 className="text-base font-semibold leading-7 text-indigo-600">更简单、更高效</h2>
             <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              功能特点
+              为创作者打造的创新体验
             </p>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              元宝伴侣提供了一系列强大的功能，帮助您轻松创建、预览和分享HTML项目。
+              AIPage.top 提供了一系列强大而直观的功能，让HTML创作和分享变得前所未有的简单。
             </p>
           </div>
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-              <div className="flex flex-col">
-                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+              <div className="flex flex-col bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                <dt className="flex items-center gap-x-3 text-lg font-semibold leading-7 text-gray-900">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                    <CodeBracketIcon className="h-6 w-6" aria-hidden="true" />
+                  </div>
                   实时预览
                 </dt>
                 <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
                   <p className="flex-auto">
-                    实时查看您的HTML代码效果，支持JavaScript交互，使开发更加高效。
+                    实时查看您的HTML代码效果，支持JavaScript交互，让开发过程更流畅、更直观。
                   </p>
                 </dd>
               </div>
-              <div className="flex flex-col">
-                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+              <div className="flex flex-col bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                <dt className="flex items-center gap-x-3 text-lg font-semibold leading-7 text-gray-900">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                    <ShareIcon className="h-6 w-6" aria-hidden="true" />
+                  </div>
                   一键分享
                 </dt>
                 <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
                   <p className="flex-auto">
-                    生成唯一的分享链接，轻松与他人分享您的HTML项目，无需任何部署步骤。
+                    生成唯一的分享链接，轻松与他人分享您的HTML项目，无需任何部署或复杂配置。
                   </p>
                 </dd>
               </div>
-              <div className="flex flex-col">
-                <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+              <div className="flex flex-col bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                <dt className="flex items-center gap-x-3 text-lg font-semibold leading-7 text-gray-900">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                    <FolderIcon className="h-6 w-6" aria-hidden="true" />
+                  </div>
                   项目管理
                 </dt>
                 <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
                   <p className="flex-auto">
-                    保存并管理您的HTML项目，随时可以编辑和更新，方便进行版本管理。
+                    保存并管理您的HTML项目，随时可以编辑和更新，轻松进行版本管理和迭代优化。
                   </p>
                 </dd>
               </div>
             </dl>
           </div>
         </div>
+      </div>
+
+      {/* 动态装饰背景 */}
+      <div className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
+        <div className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }}></div>
       </div>
     </div>
   );
