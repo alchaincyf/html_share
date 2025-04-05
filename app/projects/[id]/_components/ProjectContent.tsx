@@ -6,8 +6,8 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import HtmlEditor from '@/components/HtmlEditor';
 import ShareProject from '@/components/ShareProject';
-import { supabase } from '@/lib/supabase';
-import type { HtmlProject } from '@/lib/supabase';
+import { getProject, updateProject, deleteProject } from '@/lib/firebase-utils';
+import type { HtmlProject } from '@/lib/firebase';
 
 export default function ProjectContent({ id }: { id: string }) {
   const router = useRouter();
@@ -22,21 +22,9 @@ export default function ProjectContent({ id }: { id: string }) {
       setDebugError(null);
       try {
         console.log('正在获取项目数据，ID:', id);
-        const { data, error } = await supabase
-          .from('html_projects')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) {
-          const errorMsg = `获取项目数据失败: ${error.message || JSON.stringify(error)}`;
-          console.error(errorMsg);
-          setDebugError(errorMsg);
-          throw new Error(errorMsg);
-        }
-
-        console.log('成功获取项目数据:', data ? '数据正常' : '没有数据');
-        setProject(data);
+        const projectData = await getProject(id);
+        console.log('成功获取项目数据:', projectData ? '数据正常' : '没有数据');
+        setProject(projectData);
       } catch (error) {
         const errorMessage = error instanceof Error 
           ? error.message 
@@ -73,29 +61,13 @@ export default function ProjectContent({ id }: { id: string }) {
 
     try {
       console.log('准备更新项目:', project.id);
-      const { error } = await supabase
-        .from('html_projects')
-        .update({
-          title,
-          html_content: html,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', project.id);
-
-      if (error) {
-        const errorMsg = `更新项目失败: ${error.message || JSON.stringify(error)}`;
-        console.error(errorMsg);
-        setDebugError(errorMsg);
-        throw new Error(errorMsg);
-      }
+      const updatedProject = await updateProject(project.id, {
+        title,
+        html_content: html
+      });
 
       console.log('项目更新成功');
-      setProject({
-        ...project,
-        title,
-        html_content: html,
-        updated_at: new Date().toISOString()
-      });
+      setProject(updatedProject);
       
       setIsEditing(false);
       toast.success('项目更新成功');
@@ -122,17 +94,7 @@ export default function ProjectContent({ id }: { id: string }) {
     setDebugError(null);
     try {
       console.log('准备删除项目:', id);
-      const { error } = await supabase
-        .from('html_projects')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        const errorMsg = `删除项目失败: ${error.message || JSON.stringify(error)}`;
-        console.error(errorMsg);
-        setDebugError(errorMsg);
-        throw new Error(errorMsg);
-      }
+      await deleteProject(id);
 
       console.log('项目删除成功');
       toast.success('项目已删除');
@@ -172,7 +134,7 @@ export default function ProjectContent({ id }: { id: string }) {
                 {debugError}
               </pre>
               <p className="mt-2 text-sm text-red-700">
-                请检查Supabase连接、项目设置和环境变量是否正确配置。
+                请检查Firebase连接、项目设置和环境变量是否正确配置。
               </p>
               <div className="mt-3">
                 <Link

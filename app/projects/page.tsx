@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { supabase } from '@/lib/supabase';
-import type { HtmlProject } from '@/lib/supabase';
+import { getAllProjects } from '@/lib/firebase-utils';
+import type { HtmlProject } from '@/lib/firebase';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<HtmlProject[]>([]);
@@ -17,38 +17,16 @@ export default function ProjectsPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        console.log('正在连接 Supabase...');
-        // 先测试连接
-        const { error: connectionError } = await supabase
-          .from('html_projects')
-          .select('count');
+        console.log('正在连接 Firebase...');
+        setConnectionStatus('checking');
         
-        if (connectionError) {
-          const errorMsg = `Supabase 连接错误: ${connectionError.message || JSON.stringify(connectionError)}`;
-          console.error(errorMsg);
-          setErrorDetails(errorMsg);
-          setConnectionStatus('failed');
-          throw new Error(errorMsg);
-        }
+        // 获取项目列表
+        const projectsList = await getAllProjects();
         
-        console.log('连接成功，正在获取项目列表...');
-        setConnectionStatus('connected');
-        
-        const { data, error } = await supabase
-          .from('html_projects')
-          .select('*')
-          .order('updated_at', { ascending: false });
-
-        if (error) {
-          const errorMsg = `获取项目数据失败: ${error.message || JSON.stringify(error)}`;
-          console.error(errorMsg);
-          setErrorDetails(errorMsg);
-          throw new Error(errorMsg);
-        }
-
-        console.log(`成功获取 ${data?.length || 0} 个项目`);
-        setProjects(data || []);
+        console.log(`成功获取 ${projectsList?.length || 0} 个项目`);
+        setProjects(projectsList || []);
         setErrorDetails(null);
+        setConnectionStatus('connected');
       } catch (error: unknown) {
         const errorMessage = error instanceof Error 
           ? error.message 
@@ -58,6 +36,7 @@ export default function ProjectsPage() {
             
         console.error('获取项目列表失败:', error);
         setErrorDetails(errorMessage);
+        setConnectionStatus('failed');
         toast.error('获取项目列表失败');
       } finally {
         setIsLoading(false);
@@ -121,7 +100,7 @@ export default function ProjectsPage() {
                 数据库连接错误：{errorDetails}
               </p>
               <p className="mt-2 text-sm text-red-700">
-                请确保已经在 Supabase 中创建了 html_projects 表，并在 .env.local 文件中设置了正确的 URL 和 API Key。
+                请确保已经在 Firebase 中创建了 html_projects 集合，并在 .env.local 文件中设置了正确的 Firebase 配置。
               </p>
               <div className="mt-3">
                 <button

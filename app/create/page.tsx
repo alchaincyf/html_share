@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
 import HtmlEditor from '@/components/HtmlEditor';
-import { supabase } from '@/lib/supabase';
+import { createProject } from '@/lib/firebase-utils';
 
 export default function CreatePage() {
   const router = useRouter();
@@ -27,36 +26,17 @@ export default function CreatePage() {
     setDebugError(null);
 
     try {
-      // 先检查Supabase连接
-      const testConnection = await supabase.from('html_projects').select('count');
+      console.log('准备创建项目...');
       
-      if (testConnection.error) {
-        throw new Error(`Supabase连接测试失败: ${JSON.stringify(testConnection.error)}`);
-      }
-      
-      console.log('Supabase连接成功，准备创建项目...');
-      
-      const projectId = uuidv4();
-      
-      const { error, data } = await supabase
-        .from('html_projects')
-        .insert({
-          id: projectId,
-          title,
-          html_content: html,
-          is_public: true
-        });
+      const result = await createProject({
+        title,
+        html_content: html,
+        is_public: true
+      });
 
-      if (error) {
-        const errorMsg = `Supabase插入错误: ${error.message || JSON.stringify(error)}`;
-        console.error(errorMsg);
-        setDebugError(errorMsg);
-        throw new Error(errorMsg);
-      }
-
-      console.log('项目创建成功:', data);
+      console.log('项目创建成功:', result);
       toast.success('项目创建成功');
-      router.push(`/projects/${projectId}`);
+      router.push(`/projects/${result.id}`);
     } catch (error) {
       const errorMessage = error instanceof Error 
         ? error.message 
@@ -92,7 +72,7 @@ export default function CreatePage() {
                 {debugError}
               </pre>
               <p className="mt-2 text-sm text-red-700">
-                请检查Supabase连接、项目设置和环境变量是否正确配置。
+                请检查Firebase连接、项目设置和环境变量是否正确配置。
               </p>
             </div>
           </div>

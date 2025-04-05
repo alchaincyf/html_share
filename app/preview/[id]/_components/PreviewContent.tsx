@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import type { HtmlProject } from '@/lib/supabase';
+import { getProject } from '@/lib/firebase-utils';
+import type { HtmlProject } from '@/lib/firebase';
 
 export default function PreviewContent({ id }: { id: string }) {
   const [project, setProject] = useState<HtmlProject | null>(null);
@@ -12,22 +12,14 @@ export default function PreviewContent({ id }: { id: string }) {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const { data, error } = await supabase
-          .from('html_projects')
-          .select('*')
-          .eq('id', id)
-          .single();
+        const projectData = await getProject(id);
 
-        if (error) {
-          throw error;
-        }
-
-        if (!data || !data.is_public) {
+        if (!projectData || !projectData.is_public) {
           setError('项目不存在或不可访问');
           return;
         }
 
-        setProject(data);
+        setProject(projectData);
       } catch (err) {
         console.error('获取项目失败:', err);
         setError('获取项目失败');
