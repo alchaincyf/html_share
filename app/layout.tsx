@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { Toaster } from "react-hot-toast";
+import PageTransition from "@/components/PageTransition";
+import PageEffects from "@/components/PageEffects";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,8 +32,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-gray-50 to-white min-h-screen`}
       >
         <Header />
+        <PageEffects />
         <main className="container mx-auto px-4 py-8">
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
         </main>
         <Toaster position="top-right" />
       </body>

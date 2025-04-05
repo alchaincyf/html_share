@@ -1,26 +1,61 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import HtmlEditor from '@/components/HtmlEditor';
+import SimpleHtmlEditor from '@/components/SimpleHtmlEditor';
 import { createProject } from '@/lib/firebase-utils';
-import { CodeBracketIcon } from '@heroicons/react/24/outline';
-import { DocumentPlusIcon } from '@heroicons/react/24/solid';
+import { RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
+// @ts-expect-error animejs导入问题
+import anime from 'animejs';
 
 export default function CreatePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [debugError, setDebugError] = useState<string | null>(null);
+  const [animationPlayed, setAnimationPlayed] = useState(false);
 
-  const handleSave = async (html: string, title: string) => {
+  // 页面加载动画
+  useEffect(() => {
+    if (animationPlayed) return;
+
+    // 使用Anime.js添加标题和描述文字的动画
+    const titleAnimation = anime.timeline({
+      easing: 'easeOutExpo',
+      complete: () => setAnimationPlayed(true)
+    });
+
+    titleAnimation
+      .add({
+        targets: '.page-title',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 800,
+        delay: 200
+      })
+      .add({
+        targets: '.page-description',
+        opacity: [0, 1],
+        translateY: [15, 0],
+        duration: 600
+      }, '-=400')
+      .add({
+        targets: '.editor-container',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 800
+      }, '-=300');
+  }, [animationPlayed]);
+
+  const handleDeploy = async (html: string, title: string) => {
     if (!html.trim()) {
       toast.error('HTML内容不能为空');
       return;
     }
 
     if (!title.trim()) {
-      toast.error('请输入项目标题');
+      toast.error('请输入网页标题');
       return;
     }
 
@@ -28,7 +63,7 @@ export default function CreatePage() {
     setDebugError(null);
 
     try {
-      console.log('准备创建项目...');
+      console.log('准备部署网页...');
       
       const result = await createProject({
         title,
@@ -36,9 +71,23 @@ export default function CreatePage() {
         is_public: true
       });
 
-      console.log('项目创建成功:', result);
-      toast.success('项目创建成功');
-      router.push(`/projects/${result.id}`);
+      console.log('网页部署成功:', result);
+
+      // 创建成功动画
+      anime({
+        targets: '.success-indicator',
+        scale: [0, 1.2, 1],
+        opacity: [0, 1],
+        duration: 800,
+        easing: 'easeOutElastic(1, .8)',
+        complete: () => {
+          toast.success('网页部署成功！');
+          // 跳转到预览页面
+          setTimeout(() => {
+            router.push(`/preview/${result.id}`);
+          }, 500);
+        }
+      });
     } catch (error) {
       const errorMessage = error instanceof Error 
         ? error.message 
@@ -46,34 +95,49 @@ export default function CreatePage() {
           ? JSON.stringify(error)
           : '未知错误';
       
-      console.error('保存项目失败:', errorMessage);
+      console.error('部署失败:', errorMessage);
       setDebugError(errorMessage);
-      toast.error('保存项目失败，请稍后重试');
+      toast.error('部署失败，请稍后重试');
+
+      // 错误抖动动画
+      anime({
+        targets: '.error-container',
+        translateX: [0, -10, 10, -10, 10, 0],
+        duration: 500,
+        easing: 'easeInOutSine'
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto mt-8">
-      <div className="mb-8 text-center sm:text-left sm:flex sm:items-center sm:justify-between">
+    <div className="max-w-7xl mx-auto mt-8 pb-16">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-8 text-center sm:text-left sm:flex sm:items-center sm:justify-between"
+      >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center sm:justify-start">
-            <DocumentPlusIcon className="h-8 w-8 mr-2 text-indigo-600" />
-            创建新页面
+          <h1 className="page-title text-3xl font-bold text-gray-900 flex items-center justify-center sm:justify-start opacity-0">
+            <RocketLaunchIcon className="h-8 w-8 mr-2 text-indigo-600" />
+            创建并部署我的网页
           </h1>
-          <p className="mt-2 text-lg text-gray-600 max-w-2xl">
-            粘贴您的HTML代码，即时预览效果并一键部署分享
+          <p className="page-description mt-2 text-lg text-gray-600 max-w-2xl opacity-0">
+            只需粘贴您的HTML代码，我们将帮您立即部署一个可访问的网页
           </p>
         </div>
-        <div className="hidden sm:flex mt-4 sm:mt-0 space-x-2 items-center bg-indigo-50 px-4 py-2 rounded-lg">
-          <CodeBracketIcon className="h-5 w-5 text-indigo-500" />
-          <span className="text-sm text-indigo-700">开始创作，无限可能</span>
-        </div>
-      </div>
+      </motion.div>
 
       {debugError && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+          className="error-container mb-6 bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm"
+        >
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -82,36 +146,68 @@ export default function CreatePage() {
             </div>
             <div className="ml-3">
               <p className="text-sm text-red-700 font-medium">
-                创建过程中遇到问题
+                部署过程中遇到问题
               </p>
               <pre className="mt-1 text-xs text-red-700 whitespace-pre-wrap break-words">
                 {debugError}
               </pre>
               <p className="mt-2 text-sm text-red-700">
-                请检查网络连接或稍后重试。
+                请检查HTML代码格式或网络连接是否正常。
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <div className="bg-white shadow-lg rounded-xl overflow-hidden p-4 sm:p-6 border border-gray-100">
-        <HtmlEditor onSave={handleSave} />
+      <div className="editor-container opacity-0">
+        <SimpleHtmlEditor onDeploy={handleDeploy} />
       </div>
 
       {isSubmitting && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-2xl flex flex-col items-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mb-4"></div>
-            <p className="text-gray-700">正在保存您的创作...</p>
-          </div>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50"
+        >
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", damping: 20, stiffness: 100 }}
+            className="bg-white p-6 rounded-xl shadow-2xl flex flex-col items-center"
+          >
+            <motion.div 
+              animate={{ 
+                rotate: 360,
+                borderColor: ['#6366f1', '#8b5cf6', '#6366f1']
+              }}
+              transition={{ 
+                duration: 1.5, 
+                repeat: Infinity, 
+                ease: "linear"
+              }}
+              className="h-10 w-10 border-t-2 border-b-2 rounded-full mb-4"
+            />
+            <p className="text-gray-700">正在部署您的网页...</p>
+            
+            <div className="success-indicator hidden">
+              <svg className="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </motion.div>
+        </motion.div>
       )}
       
       {/* 装饰元素 */}
-      <div className="absolute right-0 top-32 -z-10 transform-gpu overflow-hidden blur-3xl" aria-hidden="true">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.6 }}
+        transition={{ duration: 1.5 }}
+        className="absolute right-0 top-32 -z-10 transform-gpu overflow-hidden blur-3xl" 
+        aria-hidden="true"
+      >
         <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#80caff] to-[#4f46e5] opacity-10 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }}></div>
-      </div>
+      </motion.div>
     </div>
   );
 } 
