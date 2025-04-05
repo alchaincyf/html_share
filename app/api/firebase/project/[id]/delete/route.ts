@@ -6,8 +6,7 @@ const COLLECTION_NAME = 'html_projects';
 
 // DELETE请求处理程序 - 删除项目
 export async function DELETE(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {

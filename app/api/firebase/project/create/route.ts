@@ -5,18 +5,24 @@ import { getSafeHTML } from '@/lib/html-utils';
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
 
+// 请求ID生成器
+function generateRequestId() {
+  return `req_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+}
+
 // POST请求处理程序 - 创建新项目
 export async function POST(request: NextRequest) {
+  const requestId = generateRequestId();
+  console.log(`[${requestId}] 开始处理创建项目请求`);
+  
   try {
-    console.log('开始处理创建项目请求');
-    
     // 从请求体获取数据
     let body;
     try {
       body = await request.json();
-      console.log('成功解析请求体');
+      console.log(`[${requestId}] 成功解析请求体`);
     } catch (parseError) {
-      console.error('解析请求体失败:', parseError);
+      console.error(`[${requestId}] 解析请求体失败:`, parseError);
       return NextResponse.json(
         { error: '请求体解析失败', details: String(parseError) },
         { status: 400 }
@@ -27,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // 检查必要字段
     if (!title || !html_content) {
-      console.log('缺少必要字段', { title: !!title, html_content: !!html_content });
+      console.log(`[${requestId}] 缺少必要字段`, { title: !!title, html_content: !!html_content });
       return NextResponse.json(
         { error: '标题和HTML内容是必填项' },
         { status: 400 }
@@ -36,12 +42,16 @@ export async function POST(request: NextRequest) {
 
     // 初始化Firebase Admin
     let adminDb;
+    let usingMockData = false;
     try {
-      const firebaseAdmin = initializeFirebaseAdmin();
-      adminDb = firebaseAdmin.adminDb;
-      console.log('Firebase Admin SDK初始化成功');
+      const firebase = initializeFirebaseAdmin();
+      adminDb = firebase.adminDb;
+      usingMockData = firebase.isUsingMockData;
+      
+      console.log(`[${requestId}] Firebase Admin SDK初始化成功`, 
+                 usingMockData ? '(使用模拟数据)' : '');
     } catch (initError) {
-      console.error('Firebase Admin SDK初始化失败:', initError);
+      console.error(`[${requestId}] Firebase Admin SDK初始化失败:`, initError);
       return NextResponse.json(
         { 
           error: '初始化Firebase失败', 
@@ -69,15 +79,15 @@ export async function POST(request: NextRequest) {
       projectData.user_id = user_id;
     }
 
-    console.log('准备添加新项目到Firestore');
+    console.log(`[${requestId}] 准备添加新项目到${usingMockData ? '模拟' : 'Firestore'}数据库`);
     
     // 添加文档
     let docRef;
     try {
       docRef = await adminDb.collection(COLLECTION_NAME).add(projectData);
-      console.log('项目成功添加到Firestore, ID:', docRef.id);
+      console.log(`[${requestId}] 项目成功添加, ID:`, docRef.id);
     } catch (firestoreError) {
-      console.error('添加文档到Firestore失败:', firestoreError);
+      console.error(`[${requestId}] 添加文档失败:`, firestoreError);
       return NextResponse.json(
         { 
           error: '保存项目失败', 
@@ -91,9 +101,9 @@ export async function POST(request: NextRequest) {
     let docSnapshot;
     try {
       docSnapshot = await docRef.get();
-      console.log('成功获取新建项目数据');
+      console.log(`[${requestId}] 成功获取新建项目数据`);
     } catch (getDocError) {
-      console.error('获取新创建的文档失败:', getDocError);
+      console.error(`[${requestId}] 获取新创建的文档失败:`, getDocError);
       return NextResponse.json(
         { 
           error: '获取创建的项目失败', 
@@ -107,14 +117,15 @@ export async function POST(request: NextRequest) {
     const project = formatDoc(docSnapshot);
 
     // 返回结果
-    console.log('项目创建成功');
+    console.log(`[${requestId}] 项目创建成功完成`);
     return NextResponse.json({ 
       success: true,
-      project
+      project,
+      mock_data: usingMockData
     }, { status: 201 });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error('创建项目失败:', error);
+    console.error(`[${requestId}] 创建项目失败:`, error);
     return NextResponse.json(
       { error: '创建项目失败', details: errorMessage },
       { status: 500 }

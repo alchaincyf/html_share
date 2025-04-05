@@ -6,8 +6,7 @@ const COLLECTION_NAME = 'html_projects';
 
 // GET请求处理程序 - 获取单个项目
 export async function GET(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
