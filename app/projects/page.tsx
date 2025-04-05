@@ -9,7 +9,7 @@ import { FolderIcon, PlusIcon, ClockIcon, CalendarIcon, GlobeAltIcon, LockClosed
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedButton from '@/components/AnimatedButton';
-import { staggerAnimation } from '@/lib/animation-utils';
+import { staggerItems } from '@/lib/animeUtils';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<HtmlProject[]>([]);
@@ -39,7 +39,7 @@ export default function ProjectsPage() {
           if (projectListRef.current) {
             const items = projectListRef.current.querySelectorAll('.project-card');
             if (items.length > 0) {
-              staggerAnimation(Array.from(items), 100);
+              staggerItems(items, 100);
             }
           }
         }, 200);
