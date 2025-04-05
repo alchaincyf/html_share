@@ -14,13 +14,21 @@ const LazyFeatureSection = () => {
     // 使用requestIdleCallback在浏览器空闲时间加载特性部分
     const loadFeatures = () => setIsLoaded(true);
     
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      // @ts-expect-error - TypeScript可能不认识requestIdleCallback
-      window.requestIdleCallback(loadFeatures, { timeout: 2000 });
-    } else {
-      // 退回到setTimeout作为后备方案
-      const timer = setTimeout(loadFeatures, 1000);
-      return () => clearTimeout(timer);
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        // 使用更具体的类型定义
+        type RequestIdleCallbackFn = (
+          callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
+          options?: { timeout: number }
+        ) => number;
+        
+        const requestIdleCallback = window.requestIdleCallback as RequestIdleCallbackFn;
+        requestIdleCallback(loadFeatures, { timeout: 2000 });
+      } else {
+        // 退回到setTimeout作为后备方案
+        const timer = setTimeout(loadFeatures, 1000);
+        return () => clearTimeout(timer);
+      }
     }
   }, []);
   
