@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-// @ts-expect-error animejs导入问题
-import anime from 'animejs';
 import { CloudArrowUpIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { animatePreviewContainer, animateTextAreaPaste } from '@/lib/animeUtils';
 
 interface SimpleHtmlEditorProps {
   initialHtml?: string;
@@ -39,13 +38,7 @@ export default function SimpleHtmlEditor({
             setPreviewReady(true);
             
             if (previewContainerRef.current) {
-              anime({
-                targets: previewContainerRef.current,
-                translateY: [20, 0],
-                opacity: [0, 1],
-                duration: 600,
-                easing: 'easeOutQuad'
-              });
+              animatePreviewContainer(previewContainerRef.current);
             }
           }
         }
@@ -92,12 +85,7 @@ export default function SimpleHtmlEditor({
   const handlePaste = () => {
     // 聚焦到文本框并触发动画
     if (textareaRef.current) {
-      anime({
-        targets: textareaRef.current,
-        backgroundColor: ['rgba(79, 70, 229, 0.1)', 'rgba(255, 255, 255, 0)'],
-        duration: 1000,
-        easing: 'easeOutQuad'
-      });
+      animateTextAreaPaste(textareaRef.current);
     }
   };
 

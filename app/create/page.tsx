@@ -7,8 +7,7 @@ import SimpleHtmlEditor from '@/components/SimpleHtmlEditor';
 import { createProject } from '@/lib/firebase-utils';
 import { RocketLaunchIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
-// @ts-expect-error animejs导入问题
-import anime from 'animejs';
+import { animatePageElements, animateSuccessIndicator, animateErrorContainer } from '@/lib/animeUtils';
 
 export default function CreatePage() {
   const router = useRouter();
@@ -20,32 +19,8 @@ export default function CreatePage() {
   useEffect(() => {
     if (animationPlayed) return;
 
-    // 使用Anime.js添加标题和描述文字的动画
-    const titleAnimation = anime.timeline({
-      easing: 'easeOutExpo',
-      complete: () => setAnimationPlayed(true)
-    });
-
-    titleAnimation
-      .add({
-        targets: '.page-title',
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 800,
-        delay: 200
-      })
-      .add({
-        targets: '.page-description',
-        opacity: [0, 1],
-        translateY: [15, 0],
-        duration: 600
-      }, '-=400')
-      .add({
-        targets: '.editor-container',
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 800
-      }, '-=300');
+    // 使用动画工具库添加标题和描述文字的动画
+    animatePageElements(() => setAnimationPlayed(true));
   }, [animationPlayed]);
 
   const handleDeploy = async (html: string, title: string) => {
@@ -74,19 +49,12 @@ export default function CreatePage() {
       console.log('网页部署成功:', result);
 
       // 创建成功动画
-      anime({
-        targets: '.success-indicator',
-        scale: [0, 1.2, 1],
-        opacity: [0, 1],
-        duration: 800,
-        easing: 'easeOutElastic(1, .8)',
-        complete: () => {
-          toast.success('网页部署成功！');
-          // 跳转到预览页面
-          setTimeout(() => {
-            router.push(`/preview/${result.id}`);
-          }, 500);
-        }
+      animateSuccessIndicator(() => {
+        toast.success('网页部署成功！');
+        // 跳转到预览页面
+        setTimeout(() => {
+          router.push(`/preview/${result.id}`);
+        }, 500);
       });
     } catch (error) {
       const errorMessage = error instanceof Error 
@@ -100,12 +68,7 @@ export default function CreatePage() {
       toast.error('部署失败，请稍后重试');
 
       // 错误抖动动画
-      anime({
-        targets: '.error-container',
-        translateX: [0, -10, 10, -10, 10, 0],
-        duration: 500,
-        easing: 'easeInOutSine'
-      });
+      animateErrorContainer();
     } finally {
       setIsSubmitting(false);
     }
