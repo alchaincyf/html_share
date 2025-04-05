@@ -229,7 +229,7 @@ export default function SimpleHtmlEditor({
           <li>复制您需要展示的HTML代码，然后粘贴到上方的输入框</li>
           <li>网页标题会自动从您的HTML代码中提取，您也可以手动修改</li>
           <li>输入框下方会实时显示您HTML的预览效果</li>
-          <li>满意后，点击"立即部署"按钮发布您的网页</li>
+          <li>满意后，点击&quot;立即部署&quot;按钮发布您的网页</li>
           <li>系统会自动生成一个可分享的链接，您可以将其发送给他人</li>
         </ul>
       </motion.div>
