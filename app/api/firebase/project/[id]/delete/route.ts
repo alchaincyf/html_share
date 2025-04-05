@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase-admin';
+import { initializeFirebaseAdmin } from '@/lib/firebase-admin';
 
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
 
 // DELETE请求处理程序 - 删除项目
 export async function DELETE(
-  request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // 初始化Firebase Admin
+    const { adminDb } = initializeFirebaseAdmin();
+    
     // 获取项目ID
     const projectId = params.id;
     if (!projectId) {
@@ -39,10 +43,11 @@ export async function DELETE(
       success: true,
       message: '项目已成功删除'
     }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`删除项目失败 [ID: ${params.id}]:`, error);
     return NextResponse.json(
-      { error: '删除项目失败', details: error.message },
+      { error: '删除项目失败', details: errorMessage },
       { status: 500 }
     );
   }

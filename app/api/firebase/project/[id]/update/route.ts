@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb, formatDoc } from '@/lib/firebase-admin';
+import { initializeFirebaseAdmin, formatDoc } from '@/lib/firebase-admin';
 
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
@@ -10,6 +10,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // 初始化Firebase Admin
+    const { adminDb } = initializeFirebaseAdmin();
+    
     // 获取项目ID
     const projectId = params.id;
     if (!projectId) {
@@ -24,7 +27,7 @@ export async function POST(
     const { title, html_content, is_public } = body;
 
     // 构建更新数据
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updated_at: new Date() // 总是更新时间戳
     };
 
@@ -57,10 +60,11 @@ export async function POST(
       success: true,
       project
     }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`更新项目失败 [ID: ${params.id}]:`, error);
     return NextResponse.json(
-      { error: '更新项目失败', details: error.message },
+      { error: '更新项目失败', details: errorMessage },
       { status: 500 }
     );
   }

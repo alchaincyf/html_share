@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb, formatDoc } from '@/lib/firebase-admin';
+import { initializeFirebaseAdmin, formatDoc } from '@/lib/firebase-admin';
 
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
 
 // GET请求处理程序 - 获取单个项目
 export async function GET(
-  request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // 初始化Firebase Admin
+    const { adminDb } = initializeFirebaseAdmin();
+    
     // 获取项目ID
     const projectId = params.id;
     if (!projectId) {
@@ -38,10 +42,11 @@ export async function GET(
     
     // 返回结果
     return NextResponse.json({ project }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`获取项目失败 [ID: ${params.id}]:`, error);
     return NextResponse.json(
-      { error: '获取项目失败', details: error.message },
+      { error: '获取项目失败', details: errorMessage },
       { status: 500 }
     );
   }

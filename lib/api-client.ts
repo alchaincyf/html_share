@@ -8,6 +8,12 @@ import { ProjectType } from '@/types/project';
 // 基础API URL
 const API_BASE_URL = '/api/firebase';
 
+// API错误类型
+interface ApiError extends Error {
+  status?: number;
+  details?: string;
+}
+
 // 通用fetch错误处理
 async function fetchWithErrorHandling(url: string, options?: RequestInit) {
   try {
@@ -18,13 +24,17 @@ async function fetchWithErrorHandling(url: string, options?: RequestInit) {
     
     // 检查HTTP状态码
     if (!response.ok) {
-      throw new Error(data.error || `HTTP错误: ${response.status}`);
+      const error = new Error(data.error || `HTTP错误: ${response.status}`) as ApiError;
+      error.status = response.status;
+      error.details = data.details;
+      throw error;
     }
     
     return data;
-  } catch (error: any) {
-    console.error(`API请求失败 [${url}]:`, error);
-    throw error;
+  } catch (error: unknown) {
+    const displayError = error instanceof Error ? error : new Error(String(error));
+    console.error(`API请求失败 [${url}]:`, displayError);
+    throw displayError;
   }
 }
 
