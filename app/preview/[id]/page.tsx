@@ -1,5 +1,7 @@
-import PreviewContent from './_components/PreviewContent';
+import RawHtmlContent from './_components/RawHtmlContent';
+
+export const dynamic = 'force-dynamic';
 
 export default function PreviewPage({ params }: { params: { id: string } }) {
-  return <PreviewContent id={params.id} />;
+  return <RawHtmlContent id={params.id} />;
 } 

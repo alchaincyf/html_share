@@ -20,6 +20,9 @@ import { HtmlProject } from './firebase';
 // 集合名称
 const COLLECTION_NAME = 'html_projects';
 
+// 检查是否在客户端环境
+const isClient = typeof window !== 'undefined';
+
 // 格式化Firestore文档为HtmlProject类型
 const formatDoc = (doc: DocumentSnapshot | QueryDocumentSnapshot<unknown>): HtmlProject => {
   const data = doc.data() || {};
@@ -44,6 +47,10 @@ const formatDoc = (doc: DocumentSnapshot | QueryDocumentSnapshot<unknown>): Html
 
 // 创建新项目
 export const createProject = async (projectData: Omit<HtmlProject, 'id' | 'created_at' | 'updated_at'>) => {
+  if (!isClient || !db) {
+    throw new Error('Firebase仅在客户端可用');
+  }
+  
   try {
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...projectData,
@@ -65,6 +72,10 @@ export const createProject = async (projectData: Omit<HtmlProject, 'id' | 'creat
 
 // 获取所有项目
 export const getAllProjects = async () => {
+  if (!isClient || !db) {
+    throw new Error('Firebase仅在客户端可用');
+  }
+  
   try {
     const q = query(
       collection(db, COLLECTION_NAME), 
@@ -80,6 +91,10 @@ export const getAllProjects = async () => {
 
 // 获取单个项目
 export const getProject = async (id: string) => {
+  if (!isClient || !db) {
+    throw new Error('Firebase仅在客户端可用');
+  }
+  
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
     const snapshot = await getDoc(docRef);
@@ -97,6 +112,10 @@ export const getProject = async (id: string) => {
 
 // 更新项目
 export const updateProject = async (id: string, data: Partial<Omit<HtmlProject, 'id' | 'created_at' | 'updated_at'>>) => {
+  if (!isClient || !db) {
+    throw new Error('Firebase仅在客户端可用');
+  }
+  
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
     await updateDoc(docRef, {
@@ -114,6 +133,10 @@ export const updateProject = async (id: string, data: Partial<Omit<HtmlProject, 
 
 // 删除项目
 export const deleteProject = async (id: string) => {
+  if (!isClient || !db) {
+    throw new Error('Firebase仅在客户端可用');
+  }
+  
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
     await deleteDoc(docRef);
@@ -126,6 +149,10 @@ export const deleteProject = async (id: string) => {
 
 // 获取公开的项目
 export const getPublicProjects = async () => {
+  if (!isClient || !db) {
+    throw new Error('Firebase仅在客户端可用');
+  }
+  
   try {
     const q = query(
       collection(db, COLLECTION_NAME),

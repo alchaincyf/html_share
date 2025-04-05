@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "HTML预览 - 元宝伴侣",
-  description: "HTML项目预览页面",
+export const metadata = {
+  title: 'HTML预览',
+  description: '用户HTML内容预览',
 };
 
 export default function PreviewLayout({
@@ -12,7 +10,14 @@ export default function PreviewLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>HTML预览</title>
+      </head>
+      <body style={{ margin: 0, padding: 0 }}>
+        {children}
+      </body>
     </html>
   );
 } 

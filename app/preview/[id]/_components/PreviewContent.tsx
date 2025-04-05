@@ -49,11 +49,19 @@ export default function PreviewContent({ id }: { id: string }) {
     );
   }
 
-  // 直接返回HTML内容，不包含任何框架元素
+  // 直接返回HTML内容，完全替换页面内容
   return (
     <div 
       dangerouslySetInnerHTML={{ __html: project.html_content }} 
-      style={{ height: '100vh', width: '100vw', overflow: 'auto' }}
+      style={{ 
+        height: '100%', 
+        width: '100%', 
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        margin: 0,
+        padding: 0
+      }}
     />
   );
 } 

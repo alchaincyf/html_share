@@ -17,18 +17,29 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only on client side
+let app;
+let db;
+let auth;
+let storage;
 
-// Initialize services
-export const db = getFirestore(app);
-export const auth = getAuth(app);
-export const storage = getStorage(app);
-
-// Initialize Analytics only on client side
 if (typeof window !== 'undefined') {
-  getAnalytics(app);
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    storage = getStorage(app);
+    
+    // Initialize Analytics only on client side
+    if (process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID) {
+      getAnalytics(app);
+    }
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
+  }
 }
+
+export { db, auth, storage };
 
 // HTML 项目类型定义
 export type HtmlProject = {
