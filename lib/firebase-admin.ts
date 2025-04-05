@@ -37,30 +37,56 @@ function initializeFirebaseAdmin() {
       const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
       const databaseURL = process.env.FIREBASE_DATABASE_URL;
 
-      // 检查必要的环境变量
-      if (!projectId || !privateKey || !clientEmail) {
-        throw new Error('缺少Firebase Admin SDK必要的环境变量配置');
+      // 详细检查每个环境变量
+      const missingVars = [];
+      if (!projectId) missingVars.push('FIREBASE_PROJECT_ID');
+      if (!privateKey) missingVars.push('FIREBASE_PRIVATE_KEY');
+      if (!clientEmail) missingVars.push('FIREBASE_CLIENT_EMAIL');
+
+      // 如果缺少任何必要的环境变量，抛出详细错误
+      if (missingVars.length > 0) {
+        const errorMsg = `缺少Firebase Admin SDK必要的环境变量配置: ${missingVars.join(', ')}`;
+        console.error(errorMsg);
+        throw new Error(errorMsg);
       }
 
-      // 初始化应用
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId,
-          privateKey,
-          clientEmail,
-        }),
-        databaseURL: databaseURL,
-      });
+      try {
+        // 初始化应用
+        admin.initializeApp({
+          credential: admin.credential.cert({
+            projectId,
+            privateKey,
+            clientEmail,
+          }),
+          databaseURL: databaseURL,
+        });
+        console.log('Firebase Admin SDK初始化成功');
+      } catch (initError) {
+        const errorMsg = initError instanceof Error 
+          ? `Firebase应用初始化失败: ${initError.message}` 
+          : 'Firebase应用初始化失败: 未知错误';
+        console.error(errorMsg);
+        throw new Error(errorMsg);
+      }
     }
 
     // 获取Firestore和Auth实例
-    adminDb = admin.firestore();
-    adminAuth = admin.auth();
-    isInitialized = true;
-    
-    return { adminDb, adminAuth };
+    try {
+      adminDb = admin.firestore();
+      adminAuth = admin.auth();
+      isInitialized = true;
+      
+      return { adminDb, adminAuth };
+    } catch (serviceError) {
+      const errorMsg = serviceError instanceof Error 
+        ? `Firebase服务获取失败: ${serviceError.message}` 
+        : 'Firebase服务获取失败: 未知错误';
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
   } catch (error) {
     console.error('Firebase Admin SDK初始化失败:', error);
+    // 重新抛出错误以便API路由可以捕获和处理
     throw error;
   }
 }
