@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { getAllProjects } from '@/lib/firebase-utils';
-import type { HtmlProject } from '@/lib/firebase';
+import { apiGetAllProjects } from '@/lib/api-client';
+import type { ProjectType } from '@/types/project';
 import { FolderIcon, PlusIcon, ClockIcon, CalendarIcon, GlobeAltIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,7 +12,7 @@ import AnimatedButton from '@/components/AnimatedButton';
 import { staggerItems } from '@/lib/animeUtils';
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<HtmlProject[]>([]);
+  const [projects, setProjects] = useState<ProjectType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<
@@ -23,11 +23,11 @@ export default function ProjectsPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        console.log('正在连接 Firebase...');
+        console.log('正在连接 API...');
         setConnectionStatus('checking');
         
-        // 获取项目列表
-        const projectsList = await getAllProjects();
+        // 使用新的API客户端获取项目列表
+        const projectsList = await apiGetAllProjects();
         
         console.log(`成功获取 ${projectsList?.length || 0} 个项目`);
         setProjects(projectsList || []);

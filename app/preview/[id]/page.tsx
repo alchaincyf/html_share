@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getProject } from '@/lib/firebase-utils';
+import { apiGetProject } from '@/lib/api-client';
 
 export default function PreviewPage({ params }: { params: { id: string } }) {
   const [htmlContent, setHtmlContent] = useState<string | null>(null);
@@ -11,7 +11,8 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const projectData = await getProject(params.id);
+        // 使用API客户端获取项目
+        const projectData = await apiGetProject(params.id);
 
         if (!projectData || !projectData.is_public) {
           setError('项目不存在或不可访问');

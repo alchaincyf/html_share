@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import { RocketLaunchIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+// 预加载 API 客户端
+import { apiCreateProject } from '@/lib/api-client';
 
 // 动态导入编辑器组件，减少初始加载时间
 const SimpleHtmlEditor = dynamic(() => import('@/components/SimpleHtmlEditor'), {
@@ -62,14 +64,12 @@ export default function CreatePage() {
     try {
       console.log('准备部署网页...');
       
-      // 动态导入firebase-utils以减少初始加载时间
-      const { createProject } = await import('@/lib/firebase-utils');
-      
-      const result = await createProject({
+      // 使用API客户端创建项目
+      const result = await apiCreateProject(
         title,
-        html_content: html,
-        is_public: true
-      });
+        html,
+        true // 默认公开
+      );
 
       console.log('网页部署成功:', result);
 

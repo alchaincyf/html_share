@@ -6,12 +6,12 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import HtmlEditor from '@/components/HtmlEditor';
 import ShareProject from '@/components/ShareProject';
-import { getProject, updateProject, deleteProject } from '@/lib/firebase-utils';
-import type { HtmlProject } from '@/lib/firebase';
+import { apiGetProject, apiUpdateProject, apiDeleteProject } from '@/lib/api-client';
+import type { ProjectType } from '@/types/project';
 
 export default function ProjectContent({ id }: { id: string }) {
   const router = useRouter();
-  const [project, setProject] = useState<HtmlProject | null>(null);
+  const [project, setProject] = useState<ProjectType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,7 +22,7 @@ export default function ProjectContent({ id }: { id: string }) {
       setDebugError(null);
       try {
         console.log('正在获取项目数据，ID:', id);
-        const projectData = await getProject(id);
+        const projectData = await apiGetProject(id);
         console.log('成功获取项目数据:', projectData ? '数据正常' : '没有数据');
         setProject(projectData);
       } catch (error) {
@@ -61,7 +61,7 @@ export default function ProjectContent({ id }: { id: string }) {
 
     try {
       console.log('准备更新项目:', project.id);
-      const updatedProject = await updateProject(project.id, {
+      const updatedProject = await apiUpdateProject(project.id, {
         title,
         html_content: html
       });
@@ -94,7 +94,7 @@ export default function ProjectContent({ id }: { id: string }) {
     setDebugError(null);
     try {
       console.log('准备删除项目:', id);
-      await deleteProject(id);
+      await apiDeleteProject(id);
 
       console.log('项目删除成功');
       toast.success('项目已删除');
