@@ -27,10 +27,10 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-gray-50 to-white min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-full min-h-screen`}
       >
         <Header />
-        <main className="container mx-auto px-4 py-8">
+        <main className="w-full py-8">
           <ClientWrapper>
             {children}
           </ClientWrapper>

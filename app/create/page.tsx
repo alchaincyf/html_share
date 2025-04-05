@@ -75,7 +75,7 @@ export default function CreatePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto mt-8 pb-16">
+    <div className="container mx-auto max-w-7xl px-4 mt-8 pb-16">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

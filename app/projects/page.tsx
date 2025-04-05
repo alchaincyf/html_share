@@ -75,7 +75,7 @@ export default function ProjectsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col justify-center items-center h-64">
+      <div className="container mx-auto flex flex-col justify-center items-center h-64">
         <motion.div 
           animate={{ 
             rotate: 360,
@@ -100,7 +100,7 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto mt-8">
+    <div className="container mx-auto max-w-7xl px-4 mt-8">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
